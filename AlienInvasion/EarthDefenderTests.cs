@@ -123,6 +123,29 @@ namespace AlienInvasion
             subject.GetWeapon();
             CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
         }
+
+        [Test]
+        public void ReloadUsedWeaponsMakesThemAvailable()
+        {
+            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var weapons = new List<IDefenceWeapon> { defenceWeapon };
+            var subject = new Armory(weapons);
+            subject.GetWeapon();
+            subject.ReloadWeapons();
+            var result = subject.GetWeapon();
+            Assert.That(result, Is.SameAs(defenceWeapon));
+        }
+
+        [Test]
+        public void AfterReloadingTheArmoryContainsTheSameWeapons()
+        {
+            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var weapons = new List<IDefenceWeapon> { defenceWeapon };
+            var subject = new Armory(weapons);
+            subject.GetWeapon();
+            subject.ReloadWeapons();
+            CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
+        }
     }
 
     public class NoWeaponAvailableException : Exception
@@ -134,8 +157,8 @@ namespace AlienInvasion
 
     public class Armory
     {
-        private IList<IDefenceWeapon> AvailableWeapons { get; set; }
-        private IList<IDefenceWeapon> UsedWeapons { get; set; }
+        private List<IDefenceWeapon> AvailableWeapons { get; set; }
+        private List<IDefenceWeapon> UsedWeapons { get; set; }
 
         public Armory() : this(new List<IDefenceWeapon>()) {}
         
@@ -157,12 +180,18 @@ namespace AlienInvasion
         {
             if (AvailableWeapons.Any())
             {
-                var weapon = AvailableWeapons.Except(UsedWeapons).First();
+                var weapon = AvailableWeapons.First();
                 AvailableWeapons.Remove(weapon);
                 UsedWeapons.Add(weapon);
                 return weapon;
             }
             throw new NoWeaponAvailableException();
+        }
+
+        public void ReloadWeapons()
+        {
+            AvailableWeapons.AddRange(UsedWeapons);
+            UsedWeapons.Clear();
         }
     }
 }
