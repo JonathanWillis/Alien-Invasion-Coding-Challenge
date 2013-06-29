@@ -85,7 +85,15 @@ namespace AlienInvasion
             CollectionAssert.AreEquivalent(subject.Weapons, weapons);
         }
 
-        
+        [Test]
+        public void GetWeaponFromArmory()
+        {
+            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var weapons = new List<IDefenceWeapon> { defenceWeapon };
+            var subject = new Armory(weapons);
+            var result = subject.GetWeapon();
+            Assert.That(result, Is.SameAs(defenceWeapon));
+        }
     }
 
     public class Armory
@@ -100,6 +108,11 @@ namespace AlienInvasion
         public Armory(IEnumerable<IDefenceWeapon> defenceWeapons)
         {
             Weapons = new List<IDefenceWeapon>(defenceWeapons);
+        }
+
+        public IDefenceWeapon GetWeapon()
+        {
+            return Weapons.First();
         }
     }
 }
