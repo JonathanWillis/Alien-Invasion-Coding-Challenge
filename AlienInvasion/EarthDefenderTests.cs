@@ -19,11 +19,11 @@ namespace AlienInvasion
             var random = new Random();
             var weapons = new List<IDefenceWeapon>
 			              	{
-			              		CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster)
+			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster)
 			              	};
 
             var defender = new EarthDefender();
@@ -55,8 +55,11 @@ namespace AlienInvasion
 
             return invasionWave;
         }
+    }
 
-        private IDefenceWeapon CreateDefenceWeapon(DefenceWeaponType weaponType)
+    public class WeaponGenerator
+    {
+        public static IDefenceWeapon CreateDefenceWeapon(DefenceWeaponType weaponType)
         {
             var weapon = MockRepository.GenerateStub<IDefenceWeapon>();
             weapon.Stub(x => x.DefenceWeaponType).Return(weaponType);
@@ -77,10 +80,12 @@ namespace AlienInvasion
         [Test]
         public void ArmoryCanContainWeapons()
         {
-            var weapons = new List<IDefenceWeapon>();
+            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster) };
             var subject = new Armory(weapons);
             CollectionAssert.AreEquivalent(subject.Weapons, weapons);
         }
+
+        
     }
 
     public class Armory
