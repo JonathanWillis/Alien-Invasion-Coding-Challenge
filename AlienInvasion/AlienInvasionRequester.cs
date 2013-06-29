@@ -57,10 +57,10 @@ namespace AlienInvasion
 	public class AlienInvasionRequester
 	{
 		// Set this value to your name(s) before running any of the tests below
-		const string UserNames = "PLEASE FILL ME IN";
+		const string UserNames = "Jon the Joker";
 
 		// Set this value to indicate the type of testing you are doing (i.e. Manual, TDD, or ContinuousTDD)
-		const CompetitorType TypeOfCompetitor = CompetitorType.NotSpecified;
+		const CompetitorType TypeOfCompetitor = CompetitorType.TDD;
 
 		/// <summary>
 		/// Run this test when you are ready to receive your briefing to defend earth.  If at any time you want to see the briefing again, just re-run this test.
