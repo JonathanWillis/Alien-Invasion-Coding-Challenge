@@ -67,11 +67,19 @@ namespace AlienInvasion
     [TestFixture]
     public class ArmoryTests
     {
-        [TestAttribute]
+        [Test]
         public void NewArmoryHasNoWeapons()
         {
-            Armory subject = new Armory();
+            var subject = new Armory();
             CollectionAssert.IsEmpty(subject.Weapons);
+        }
+
+        [Test]
+        public void ArmoryCanContainWeapons()
+        {
+            var weapons = new List<IDefenceWeapon>();
+            var subject = new Armory(weapons);
+            CollectionAssert.AreEquivalent(subject.Weapons, weapons);
         }
     }
 
@@ -82,6 +90,11 @@ namespace AlienInvasion
         public Armory()
         {
             Weapons = new List<IDefenceWeapon>();
+        }
+
+        public Armory(IEnumerable<IDefenceWeapon> defenceWeapons)
+        {
+            Weapons = new List<IDefenceWeapon>(defenceWeapons);
         }
     }
 }
