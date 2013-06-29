@@ -18,13 +18,13 @@ namespace AlienInvasion
         {
             var random = new Random();
             var weapons = new List<IDefenceWeapon>
-			              	{
-			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
-			              		WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster)
-			              	};
+			{
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster)
+			};
 
             var defender = new EarthDefender();
 
@@ -35,6 +35,39 @@ namespace AlienInvasion
                 var defenceStrategy = defender.DefendEarth(invasionWave);
 
                 Assert.That(defenceStrategy.WeaponsToFireAtThisWave.Count(), Is.EqualTo(numberOfInvaders));
+            }
+        }
+
+        [Test]
+        public void WhenRomeIsBeingInvaded()
+        {
+            var random = new Random();
+            var weapons = new List<IDefenceWeapon>
+			{
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster),
+			    WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster)
+			};
+
+            var defender = new EarthDefender();
+
+            var weaponsUsedInPreviousWave = new List<IDefenceWeapon>();
+            for (var wave = 1; wave <= 25; wave++)
+            {
+                var numberOfInvaders = random.Next(5) + 1;
+                var invasionWave = CreateInvasionWave(numberOfInvaders, weapons);
+                var defenceStrategy = defender.DefendEarth(invasionWave);
+
+                Assert.That(defenceStrategy.WeaponsToFireAtThisWave.Count(), Is.EqualTo(numberOfInvaders));
+                CollectionAssert.IsNotSubsetOf(defenceStrategy.WeaponsToFireAtThisWave, weaponsUsedInPreviousWave);
+                weaponsUsedInPreviousWave = new List<IDefenceWeapon>(defenceStrategy.WeaponsToFireAtThisWave);
             }
         }
 
