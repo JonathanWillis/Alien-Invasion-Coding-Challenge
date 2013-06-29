@@ -74,7 +74,7 @@ namespace AlienInvasion
         public void NewArmoryHasNoWeapons()
         {
             var subject = new Armory();
-            CollectionAssert.IsEmpty(subject.Weapons);
+            CollectionAssert.IsEmpty(subject.Weapons());
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace AlienInvasion
         {
             var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster) };
             var subject = new Armory(weapons);
-            CollectionAssert.AreEquivalent(subject.Weapons, weapons);
+            CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace AlienInvasion
             var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster) };
             var subject = new Armory(weapons);
             subject.GetWeapon();
-            CollectionAssert.AreEquivalent(subject.Weapons, weapons);
+            CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
         }
     }
 
@@ -134,22 +134,31 @@ namespace AlienInvasion
 
     public class Armory
     {
-        public IList<IDefenceWeapon> Weapons { get; set; }
-        public IList<IDefenceWeapon> UsedWeapons { get; set; }
+        private IList<IDefenceWeapon> AvailableWeapons { get; set; }
+        private IList<IDefenceWeapon> UsedWeapons { get; set; }
 
         public Armory() : this(new List<IDefenceWeapon>()) {}
         
         public Armory(IEnumerable<IDefenceWeapon> defenceWeapons)
         {
-            Weapons = new List<IDefenceWeapon>(defenceWeapons);
+            AvailableWeapons = new List<IDefenceWeapon>(defenceWeapons);
             UsedWeapons = new List<IDefenceWeapon>();
+        }
+
+        public IEnumerable<IDefenceWeapon> Weapons()
+        {
+            var defenceWeapons = new List<IDefenceWeapon>();
+            defenceWeapons.AddRange(AvailableWeapons);
+            defenceWeapons.AddRange(UsedWeapons);
+            return defenceWeapons;
         }
 
         public IDefenceWeapon GetWeapon()
         {
-            if (Weapons.Any())
+            if (AvailableWeapons.Any())
             {
-                var weapon = Weapons.Except(UsedWeapons).First();
+                var weapon = AvailableWeapons.Except(UsedWeapons).First();
+                AvailableWeapons.Remove(weapon);
                 UsedWeapons.Add(weapon);
                 return weapon;
             }
