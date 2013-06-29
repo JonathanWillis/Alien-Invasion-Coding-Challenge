@@ -7,10 +7,20 @@ namespace AlienInvasion
 {
 	public class EarthDefender : IEarthDefender
 	{
-		public DefenceStrategy DefendEarth(IAlienInvasionWave invasionWave)
+	    private Armory _armory;
+
+	    public DefenceStrategy DefendEarth(IAlienInvasionWave invasionWave)
 		{
-            var weaponsToFireAtThisWave = new List<IDefenceWeapon>(invasionWave.WeaponsAvailableForDefence.Take(invasionWave.AlienInvaders.Count()));
-		    return new DefenceStrategy(weaponsToFireAtThisWave);
+            if (_armory == null)
+		        _armory = new Armory(invasionWave.WeaponsAvailableForDefence);
+
+            _armory.ReloadWeapons();
+
+            var weaponsToFire = new List<IDefenceWeapon>();
+            for (var i = 0; i < invasionWave.AlienInvaders.Count(); i++)
+                weaponsToFire.Add(_armory.GetWeapon());
+
+		    return new DefenceStrategy(weaponsToFire);
 		}
 	}
 }
