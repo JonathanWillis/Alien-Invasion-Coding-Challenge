@@ -94,6 +94,20 @@ namespace AlienInvasion
             var result = subject.GetWeapon();
             Assert.That(result, Is.SameAs(defenceWeapon));
         }
+
+        [Test]
+        public void ThrowExceptionIfNoWeaponIsInArmory()
+        {
+            var subject = new Armory();
+            Assert.Throws<NoWeaponAvailableException>(() => subject.GetWeapon());
+        }
+    }
+
+    public class NoWeaponAvailableException : Exception
+    {
+        public NoWeaponAvailableException() : base("No weapons available")
+        {
+        }
     }
 
     public class Armory
@@ -112,7 +126,9 @@ namespace AlienInvasion
 
         public IDefenceWeapon GetWeapon()
         {
-            return Weapons.First();
+            if(Weapons.Any())
+                return Weapons.First();
+            throw new NoWeaponAvailableException();
         }
     }
 }
