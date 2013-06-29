@@ -114,6 +114,15 @@ namespace AlienInvasion
             var secondWeapon = subject.GetWeapon();
             Assert.That(firstWeapon,Is.Not.SameAs(secondWeapon));
         }
+
+        [Test]
+        public void AfterGettingAWeaponItIsStillInTheArmoryCollection()
+        {
+            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster) };
+            var subject = new Armory(weapons);
+            subject.GetWeapon();
+            CollectionAssert.AreEquivalent(subject.Weapons, weapons);
+        }
     }
 
     public class NoWeaponAvailableException : Exception
@@ -126,23 +135,22 @@ namespace AlienInvasion
     public class Armory
     {
         public IList<IDefenceWeapon> Weapons { get; set; }
+        public IList<IDefenceWeapon> UsedWeapons { get; set; }
 
-        public Armory()
-        {
-            Weapons = new List<IDefenceWeapon>();
-        }
-
+        public Armory() : this(new List<IDefenceWeapon>()) {}
+        
         public Armory(IEnumerable<IDefenceWeapon> defenceWeapons)
         {
             Weapons = new List<IDefenceWeapon>(defenceWeapons);
+            UsedWeapons = new List<IDefenceWeapon>();
         }
 
         public IDefenceWeapon GetWeapon()
         {
             if (Weapons.Any())
             {
-                var weapon = Weapons.First();
-                Weapons.Remove(weapon);
+                var weapon = Weapons.Except(UsedWeapons).First();
+                UsedWeapons.Add(weapon);
                 return weapon;
             }
             throw new NoWeaponAvailableException();
