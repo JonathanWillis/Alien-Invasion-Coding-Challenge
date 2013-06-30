@@ -113,7 +113,7 @@ namespace AlienInvasion
         [Test]
         public void ArmoryCanContainWeapons()
         {
-            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster) };
+            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster) };
             var subject = new Armory(weapons);
             CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
         }
@@ -121,7 +121,7 @@ namespace AlienInvasion
         [Test]
         public void GetWeaponFromArmory()
         {
-            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster);
             var weapons = new List<IDefenceWeapon> { defenceWeapon };
             var subject = new Armory(weapons);
             var result = subject.GetWeapon();
@@ -138,8 +138,8 @@ namespace AlienInvasion
         [Test]
         public void CannotGetTheSameWeaponOutOfTheArmory()
         {
-            var defenceWeapon1 = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
-            var defenceWeapon2 = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var defenceWeapon1 = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster);
+            var defenceWeapon2 = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster);
 
             var weapons = new List<IDefenceWeapon> { defenceWeapon1, defenceWeapon2 };
             var subject = new Armory(weapons);
@@ -151,7 +151,7 @@ namespace AlienInvasion
         [Test]
         public void AfterGettingAWeaponItIsStillInTheArmoryCollection()
         {
-            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster) };
+            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster) };
             var subject = new Armory(weapons);
             subject.GetWeapon();
             CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
@@ -160,24 +160,46 @@ namespace AlienInvasion
         [Test]
         public void ReloadUsedWeaponsMakesThemAvailable()
         {
-            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
-            var weapons = new List<IDefenceWeapon> { defenceWeapon };
+            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster) };
             var subject = new Armory(weapons);
-            subject.GetWeapon();
+            var result1 = subject.GetWeapon();
             subject.ReloadWeapons();
-            var result = subject.GetWeapon();
-            Assert.That(result, Is.SameAs(defenceWeapon));
+            var result2 = subject.GetWeapon();
+            Assert.That(result1, Is.SameAs(result2));
         }
 
         [Test]
         public void AfterReloadingTheArmoryContainsTheSameWeapons()
+        {
+            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster);
+            var weapons = new List<IDefenceWeapon> { defenceWeapon };
+            var subject = new Armory(weapons);
+            subject.GetWeapon();
+            subject.ReloadWeapons();
+            CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
+        }
+
+        [Test]
+        public void UsingAPeashooter500ItIsNotAvailableAfterOneReload()
+        {
+            var weapons = new List<IDefenceWeapon> { WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster) };
+            var subject = new Armory(weapons);
+            subject.GetWeapon();
+            subject.ReloadWeapons();
+            Assert.Throws<NoWeaponAvailableException>(() => subject.GetWeapon());
+        }
+
+        [Test]
+        public void UsingAPeashooter500ItIsAvailableAfterASecondReload()
         {
             var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
             var weapons = new List<IDefenceWeapon> { defenceWeapon };
             var subject = new Armory(weapons);
             subject.GetWeapon();
             subject.ReloadWeapons();
-            CollectionAssert.AreEquivalent(subject.Weapons(), weapons);
+            subject.ReloadWeapons();
+            var result = subject.GetWeapon();
+            Assert.That(result, Is.SameAs(defenceWeapon));
         }
     }
 
@@ -191,21 +213,23 @@ namespace AlienInvasion
     public class Armory
     {
         private List<IDefenceWeapon> AvailableWeapons { get; set; }
-        private List<IDefenceWeapon> UsedWeapons { get; set; }
+        private List<IDefenceWeapon> OneReloadRemainingWeapons { get; set; }
+        private List<IDefenceWeapon> TwoReloadRemainingWeapons { get; set; }
 
         public Armory() : this(new List<IDefenceWeapon>()) {}
         
         public Armory(IEnumerable<IDefenceWeapon> defenceWeapons)
         {
             AvailableWeapons = new List<IDefenceWeapon>(defenceWeapons);
-            UsedWeapons = new List<IDefenceWeapon>();
+            OneReloadRemainingWeapons = new List<IDefenceWeapon>();
+            TwoReloadRemainingWeapons = new List<IDefenceWeapon>();
         }
 
         public IEnumerable<IDefenceWeapon> Weapons()
         {
             var defenceWeapons = new List<IDefenceWeapon>();
             defenceWeapons.AddRange(AvailableWeapons);
-            defenceWeapons.AddRange(UsedWeapons);
+            defenceWeapons.AddRange(OneReloadRemainingWeapons);
             return defenceWeapons;
         }
 
@@ -215,7 +239,10 @@ namespace AlienInvasion
             {
                 var weapon = AvailableWeapons.First();
                 AvailableWeapons.Remove(weapon);
-                UsedWeapons.Add(weapon);
+                if(weapon.DefenceWeaponType == DefenceWeaponType.Peashooter500Blaster)
+                    TwoReloadRemainingWeapons.Add(weapon);
+                else
+                    OneReloadRemainingWeapons.Add(weapon);
                 return weapon;
             }
             throw new NoWeaponAvailableException();
@@ -223,8 +250,10 @@ namespace AlienInvasion
 
         public void ReloadWeapons()
         {
-            AvailableWeapons.AddRange(UsedWeapons);
-            UsedWeapons.Clear();
+            AvailableWeapons.AddRange(OneReloadRemainingWeapons);
+            OneReloadRemainingWeapons.Clear();
+            OneReloadRemainingWeapons.AddRange(TwoReloadRemainingWeapons);
+            TwoReloadRemainingWeapons.Clear();
         }
     }
 }
