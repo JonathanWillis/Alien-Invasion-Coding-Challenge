@@ -203,6 +203,26 @@ namespace AlienInvasion
         }
     }
 
+    [TestFixture]
+    public class CommandCentreTests
+    {
+        [Test]
+        public void GivenAnAlienInvasionWhenNoArmoryExistsANewArmoryIsReturned()
+        {
+            var subject = new CommandCentre();
+            var result = subject.GetArmory(MockRepository.GenerateStub<IAlienInvasionWave>());
+            Assert.That(result, Is.Not.Null);
+        }
+    }
+
+    public class CommandCentre
+    {
+        public IArmory GetArmory(IAlienInvasionWave generateStub)
+        {
+            return new Armory();
+        }
+    }
+
     public class NoWeaponAvailableException : Exception
     {
         public NoWeaponAvailableException() : base("No weapons available")
@@ -210,7 +230,14 @@ namespace AlienInvasion
         }
     }
 
-    public class Armory
+    public interface IArmory
+    {
+        IEnumerable<IDefenceWeapon> Weapons();
+        IDefenceWeapon GetWeapon();
+        void ReloadWeapons();
+    }
+
+    public class Armory : IArmory
     {
         private List<IDefenceWeapon> AvailableWeapons { get; set; }
         private List<IDefenceWeapon> OneReloadRemainingWeapons { get; set; }
