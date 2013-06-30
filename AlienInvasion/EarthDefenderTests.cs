@@ -245,17 +245,61 @@ namespace AlienInvasion
 
             Assert.That(result1, Is.SameAs(result2));
         }
+
+        [Test]
+        public void GivenACommandCentreWithAnArmoryForALondonInvasionWhenARomeInvasionArmoryIsRequestThenANewArmoryForRomeIsReturned()
+        {
+            var defenceWeaponLondon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster);
+            var weaponsLondon = new List<IDefenceWeapon> { defenceWeaponLondon };
+            var alienInvasionWaveLondon = MockRepository.GenerateStub<IAlienInvasionWave>();
+            alienInvasionWaveLondon.Stub(x => x.WeaponsAvailableForDefence).Return(weaponsLondon.ToArray());
+
+            var defenceWeaponRome = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var weaponsRome = new List<IDefenceWeapon> { defenceWeaponRome };
+            var alienInvasionWaveRome = MockRepository.GenerateStub<IAlienInvasionWave>();
+            alienInvasionWaveRome.Stub(x => x.WeaponsAvailableForDefence).Return(weaponsRome.ToArray());
+
+            var subject = new CommandCentre();
+            var resultLondon = subject.GetArmory(alienInvasionWaveLondon);
+            var resultRome = subject.GetArmory(alienInvasionWaveRome);
+            Assert.That(resultLondon, Is.Not.SameAs(resultRome));
+        }
+
+        [Test]
+        public void GivenACommandCentreWithAnArmoryForLondonAndRomeInvasionsWhenALondonInvasionArmoryIsRequestedThenTheExistingArmoryIsReturned()
+        {
+            var defenceWeaponLondon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter1000Blaster);
+            var weaponsLondon = new List<IDefenceWeapon> { defenceWeaponLondon };
+            var alienInvasionWaveLondon = MockRepository.GenerateStub<IAlienInvasionWave>();
+            alienInvasionWaveLondon.Stub(x => x.WeaponsAvailableForDefence).Return(weaponsLondon.ToArray());
+
+            var defenceWeaponRome = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var weaponsRome = new List<IDefenceWeapon> { defenceWeaponRome };
+            var alienInvasionWaveRome = MockRepository.GenerateStub<IAlienInvasionWave>();
+            alienInvasionWaveRome.Stub(x => x.WeaponsAvailableForDefence).Return(weaponsRome.ToArray());
+
+            var subject = new CommandCentre();
+            var resultLondon1 = subject.GetArmory(alienInvasionWaveLondon);
+            subject.GetArmory(alienInvasionWaveRome);
+            var resultLondon2 = subject.GetArmory(alienInvasionWaveLondon);
+            Assert.That(resultLondon1, Is.SameAs(resultLondon2));
+        }
     }
 
     public class CommandCentre
     {
-        private IArmory _armory;
+        private IDictionary<IDefenceWeapon[], IArmory> _armories = new Dictionary<IDefenceWeapon[], IArmory>();  
 
         public IArmory GetArmory(IAlienInvasionWave invasionWave)
         {
-            if(_armory == null)
-                _armory = new Armory(invasionWave.WeaponsAvailableForDefence);
-            return _armory;
+            var weapons = invasionWave.WeaponsAvailableForDefence;
+
+            if (_armories.ContainsKey(weapons))
+                return _armories[weapons];
+
+            var armory = new Armory(weapons);                
+            _armories.Add(weapons, armory);
+            return armory;
         }
     }
 
