@@ -229,13 +229,33 @@ namespace AlienInvasion
             var result = subject.GetArmory(alienInvasionWave);
             CollectionAssert.AreEquivalent(result.Weapons(), weapons);
         }
+
+        [Test]
+        public void GivenACommandCentreWithAnArmoryWhenGettingTheArmoryForAnInvasionThenTheArmoryForThatInvasionIsReturned()
+        {
+            var defenceWeapon = WeaponGenerator.CreateDefenceWeapon(DefenceWeaponType.Peashooter500Blaster);
+            var weapons = new List<IDefenceWeapon> { defenceWeapon };
+            var alienInvasionWave1 = MockRepository.GenerateStub<IAlienInvasionWave>();
+            alienInvasionWave1.Stub(x => x.WeaponsAvailableForDefence).Return(weapons.ToArray());
+
+            var subject = new CommandCentre();
+            
+            var result1 = subject.GetArmory(alienInvasionWave1);
+            var result2 = subject.GetArmory(alienInvasionWave1);
+
+            Assert.That(result1, Is.SameAs(result2));
+        }
     }
 
     public class CommandCentre
     {
+        private IArmory _armory;
+
         public IArmory GetArmory(IAlienInvasionWave invasionWave)
         {
-            return new Armory(invasionWave.WeaponsAvailableForDefence);
+            if(_armory == null)
+                _armory = new Armory(invasionWave.WeaponsAvailableForDefence);
+            return _armory;
         }
     }
 
