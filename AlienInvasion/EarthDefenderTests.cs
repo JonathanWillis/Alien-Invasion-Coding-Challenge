@@ -16,6 +16,7 @@ namespace AlienInvasion
         [Test]
         public void WhenLondonIsBeingInvaded()
         {
+            asdasdsd
             var random = new Random();
             var weapons = new List<IDefenceWeapon>
 			{
