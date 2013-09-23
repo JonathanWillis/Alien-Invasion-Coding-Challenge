@@ -1,47 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using AlienInvasion.Server.REST.Controllers;
 using NUnit.Framework;
 
 namespace AlienInvasion.Server.REST.Tests
 {
     [TestFixture]
-    public class GameControllerTests
+    public class GivenAGameToCreate
     {
+        private HttpResponseMessage _result;
+
+        [SetUp]
+        public void Setup()
+        {
+            var subject = new GameController();
+            _result = subject.Create();
+        }
+
         [Test]
         public void WhenCreatingANewGameThenStatusCodeReturnedCreated()
         {
-            var controller = new GameController();
-            HttpResponseMessage response = controller.Create();
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
+            Assert.That(_result.StatusCode, Is.EqualTo(HttpStatusCode.Created));
         }
 
         [Test]
         public void WhenCreatingANewGameThenLocationHeaderPointsToGameUri()
         {
-            var controller = new GameController();
-            HttpResponseMessage response = controller.Create();
-            StringAssert.EndsWith("/game/1", response.Headers.Location.ToString());
+            StringAssert.EndsWith("/game/1", _result.Headers.Location.ToString());
         }
+    }
 
+    [TestFixture]
+    public class GivenANonExistantGameToRetrieve
+    {
         [Test]
-        public void WhenRetrievingAGameThatDoesNotExistReturnsStatusCodeNotFound()
+        public void WhenRetrievingThenStatusCodeNotFoundIsReturned()
         {
             var controller = new GameController();
             var response = controller.Get("A");
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
+    }
 
+    [TestFixture]
+    public class GivenAnExistingGameToRetrieve
+    {
         [Test]
-        public void WhenRetrievingAnExistingGameReturnsStatusCodeOk()
+        public void WhenRetrievingThenStatusCodeOkIsReturned()
         {
             var controller = new GameController();
-            HttpResponseMessage createResponse = controller.Create();
-            HttpResponseMessage response = controller.Get(createResponse.Headers.Location.ToString().Last().ToString());
+            var createResponse = controller.Create();
+            var response = controller.Get(createResponse.Headers.Location.ToString().Last().ToString());
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
     }
