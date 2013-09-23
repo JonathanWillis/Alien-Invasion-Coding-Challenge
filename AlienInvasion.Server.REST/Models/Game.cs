@@ -4,7 +4,7 @@
     {
         private static int _gameIdCounter = 1;
 
-        public string Id { get; set; }
+        public string Id { get; private set; }
 
         public Game()
         {

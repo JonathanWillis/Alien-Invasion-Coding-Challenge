@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace AlienInvasion.Server.REST.Tests
 {
     [TestFixture]
-    public class GivenAGameToCreate
+    public class GivenANewGameToCreate
     {
         private HttpResponseMessage _result;
 
@@ -29,6 +29,13 @@ namespace AlienInvasion.Server.REST.Tests
         {
             StringAssert.EndsWith("/game/1", _result.Headers.Location.ToString());
         }
+
+        [Test]
+        public void ThenTheLocationToRegisterATeaIsPresent()
+        {
+            Assert.That(response.actions.Contains("/team/"));
+        }
+        
     }
 
     [TestFixture]
@@ -51,8 +58,17 @@ namespace AlienInvasion.Server.REST.Tests
         {
             var controller = new GameController();
             var createResponse = controller.Create();
-            var response = controller.Get(createResponse.Headers.Location.ToString().Last().ToString());
+            var createdGameid = createResponse.Headers.Location.ToString().Last().ToString();
+            var response = controller.Get(createdGameid);
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.Actions["Register"].Url, Is.EqualTo("/game/"));
+            Assert.That(response.Links["Briefing"].Alt, Is.EqualTo("Next mission briefing"));
+
+            //Register (Return a briefing) Links - Briefing
+            //Briefing (tells you about the current mission (your current state))+ next actions URI
+            //RequestAnInvasion (1st wave, list of weapons, list of aliens),  Links - SubmitADefenceStratgy
+            //SubmitADefenceStratgy (Returns summary of submitted stratgy, next wave = list of weapons, list of aliens) Links - SubmitADefenceStratgy, Briefing (when completed or failed)
+            //GetScoresOfAllTeams
         }
     }
 }
