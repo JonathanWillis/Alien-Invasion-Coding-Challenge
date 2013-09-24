@@ -1,14 +1,18 @@
-﻿namespace AlienInvasion.Server.REST.Models
+﻿using System.Collections.Generic;
+
+namespace AlienInvasion.Server.REST.Models
 {
     public class Game
     {
-        private static int _gameIdCounter = 1;
-
-        public string Id { get; private set; }
-
-        public Game()
+        public Game(IEnumerable<Team> teams)
         {
-            Id = _gameIdCounter++.ToString();
+            Scoreboard = new List<TeamScore>();
+            foreach (var team in teams)
+                Scoreboard.Add(new TeamScore(team.Name, team.Score));
+            Links = new List<RestLink> {RestLink.RegisterTeam()};
         }
+
+        public IList<TeamScore> Scoreboard { get; private set; }
+        public IList<RestLink> Links { get; private set; } 
     }
 }
