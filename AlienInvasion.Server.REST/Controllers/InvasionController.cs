@@ -17,22 +17,30 @@ namespace AlienInvasion.Server.REST.Controllers
             _teamRepository = new InMemoryDataRepository();
         }
 
-        //[HttpPost]
-        //public HttpResponseMessage Post()
-        //{
-        //    var teamId = Request.Headers.GetValues("X-Team").First();
-        //    var team = _teamRepository.GetTeam(teamId);
-        //    var invasion = team.BeginInvasion();
-        //    var response = Request.CreateResponse(HttpStatusCode.Created, invasion);
-        //    response.Headers.Location = new Uri(string.Format("http://localhost/invasion/{0}", invasion.Id));
-        //    return response;
-        //}
+        [HttpPost]
+        public HttpResponseMessage Post()
+        {
+            var teamId = Request.Headers.GetValues("X-Team").First();
+            var team = _teamRepository.GetTeam(teamId);
+            var invasion = team.BeginInvasion();
+            var response = Request.CreateResponse(HttpStatusCode.Created, invasion);
+            response.Headers.Location = new Uri(string.Format("http://localhost/invasion/{0}", invasion.Id));
+            return response;
+        }
 
         //[HttpGet]
         //public HttpResponseMessage Get()
         //{
         //    //Get invasion - return wave description + link to defenceStragtry
         //}
+    }
+
+    public class Invasion
+    {
+        public Invasion()
+        {
+            
+        }
     }
 
     //public class Wave
